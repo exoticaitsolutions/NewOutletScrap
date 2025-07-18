@@ -5,7 +5,10 @@ import yaml
 from scrapers import ReutersScraper, LATimesScraper, LAistScraper, TheGuardianScraper, DowntownLAScraper
 
 # Set up logging
-LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
+
+LOG_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', 'logs')
+)
 LOG_FILE = os.path.join(LOG_DIR, 'news_scraper.log')
 os.makedirs(LOG_DIR, exist_ok=True)
 logging.basicConfig(
@@ -16,10 +19,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Load config (placeholder)
-CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'scraper_config.yaml')
+
+CONFIG_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', 'config/scraper_config.yaml')
+)
 if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
         config = yaml.safe_load(f)
+        print(config)
+        logger.info('Config loaded successfully.')
 else:
     config = {}
     logger.warning('Config file not found, using defaults.')
