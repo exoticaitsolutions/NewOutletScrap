@@ -1,0 +1,20 @@
+sites:
+  reuters:
+    url: "https://www.reuters.com/"
+    enabled: true
+  latimes:
+    url: "https://www.latimes.com/homeless-housing"
+    enabled: true
+  laist:
+    url: "https://laist.com/news/housing-homelessness"
+    enabled: true
+  theguardian:
+    url: "https://www.theguardian.com/us-news/"
+    enabled: true
+  downtownla:
+    url: "https://downtownla.com/articles"
+    enabled: true
+keywords:
+  - Homelessness
+  - Unhoused
+  - Downtown Los Angeles 
