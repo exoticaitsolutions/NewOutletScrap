@@ -3,6 +3,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
+from utils.chrome_driver import get_chrome_driver
+
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime
@@ -15,19 +17,22 @@ class DowntownLAScraper(BaseScraper):
 
     def scrape(self):
         self.logger.info(f"Starting scrape for {self.url}")
-        options = Options()
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=options
-        )
+        # options = Options()
+        # options.add_argument('--headless')
+        # options.add_argument('--disable-gpu')
+        # driver = webdriver.Chrome(
+        #     service=Service(ChromeDriverManager().install()),
+        #     options=options
+        # )
+        driver = get_chrome_driver()
+
         rows = []
         try:
             config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'config', 'scraper_config.yaml')
             with open(config_path, 'r') as f:
                 config = yaml.safe_load(f)
             keywords = config.get('keywords', [])
+            print(f"[DEBUG] Keywords for DowntownLA search: {keywords}")
             for i, keyword in enumerate(keywords):
                 search_url = f"https://downtownla.com/articles?search={keyword.replace(' ', '+')}"
                 print(f"[DEBUG] DowntownLA search URL: {search_url}")

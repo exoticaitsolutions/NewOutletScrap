@@ -1,36 +1,16 @@
-import logging
 import os
 import sys
 import yaml
 from scrapers import ReutersScraper, LATimesScraper, LAistScraper, TheGuardianScraper, DowntownLAScraper
+from utils.config import load_config
+from utils.logger_config import loger_config
 
 # Set up logging
-
-LOG_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', 'logs')
-)
-LOG_FILE = os.path.join(LOG_DIR, 'news_scraper.log')
-os.makedirs(LOG_DIR, exist_ok=True)
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)s %(name)s %(message)s'
-)
-logger = logging.getLogger(__name__)
+logger = loger_config()
 
 # Load config (placeholder)
+config = load_config()
 
-CONFIG_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', 'config/scraper_config.yaml')
-)
-if os.path.exists(CONFIG_PATH):
-    with open(CONFIG_PATH, 'r') as f:
-        config = yaml.safe_load(f)
-        print(config)
-        logger.info('Config loaded successfully.')
-else:
-    config = {}
-    logger.warning('Config file not found, using defaults.')
 
 def main():
     logger.info('Starting news scraping process...')
