@@ -1,7 +1,7 @@
 import os
 import sys
 import yaml
-from scrapers import ReutersScraper, LATimesScraper, LAistScraper, TheGuardianScraper, DowntownLAScraper
+from scrapers import ReutersScraper, LATimesScraper, LAistScraper, TheGuardianScraper, DowntownLAScraper, ApnewsScraper
 from utils.config import load_config
 from utils.logger_config import loger_config
 
@@ -34,6 +34,10 @@ def main():
     if sites.get('downtownla', {}).get('enabled', False):
         url = sites['downtownla']['url']
         scraper = DowntownLAScraper(url, logger=logger)
+        scraper.scrape()
+    if sites.get('apnews', {}).get('enabled', False):
+        url = sites['apnews']['url']
+        scraper = ApnewsScraper(url, logger=logger)
         scraper.scrape()
     logger.info('Scraping complete.')
 
