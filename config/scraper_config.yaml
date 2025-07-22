@@ -14,10 +14,16 @@ sites:
   downtownla:
       url: "https://downtownla.com/articles"
       enabled: false
+  apnews:
+      url: "https://apnews.com/"
+      enabled: false
+  lacity:
+      url: "https://lacity.gov/"
+      enabled: false
 keywords:
-  - Homelessness
-  - Unhoused
-  - Downtown Los Angeles
+    - Unhoused
+    - Homelessness
+    - Downtown Los Angeles
 
 driver:
   headless: false

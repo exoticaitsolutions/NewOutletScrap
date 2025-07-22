@@ -1,43 +1,10 @@
-# from utils.chrome_driver import get_chrome_driver
-from .base import BaseScraper
-# from selenium import webdriver
-# from selenium.webdriver.chrome.service import Service
-# from webdriver_manager.chrome import ChromeDriverManager
-# from selenium.webdriver.chrome.options import Options
-# from bs4 import BeautifulSoup
-# import time
-# from datetime import datetime
-
-# class LATimesScraper(BaseScraper):
-#     def __init__(self, url, logger=None):
-#         super().__init__('LATimesScraper', url, logger)
-
-#     def scrape(self):
-#         self.logger.info(f"Starting scrape for {self.url}")
-        
-#         driver = get_chrome_driver()
-#         rows = []
-#         try:
-#             driver.get(self.url)
-#             time.sleep(10)  
-            
-            
-        
-            
-#             self.save_headline_rows(rows)
-#             self.logger.info(f"Scraped {len(rows)} headlines from LA Times and saved to all_headlines.csv.")
-#         except Exception as e:
-#             self.logger.error(f"Error scraping {self.url}: {e}")
-#         finally:
-#             driver.quit() 
-            
-            
-            
+from .base import BaseScraper 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 import time
- 
+import datetime
+from dateutil import parser 
 from utils.chrome_driver import get_chrome_driver
 
 class LATimesScraper(BaseScraper):
@@ -45,11 +12,14 @@ class LATimesScraper(BaseScraper):
         super().__init__('LATimesScraper', url, logger)
         self.max_items = max_items
 
+
     def scrape(self):
         self.logger.info(f"Starting scrape for {self.url}")
         driver = get_chrome_driver()
         rows = []
         seen_urls = set()
+        today = datetime.datetime.now()
+        seven_days_ago = today - datetime.timedelta(days=7)
 
         try:
             driver.get(self.url)
@@ -70,13 +40,22 @@ class LATimesScraper(BaseScraper):
 
                         if link in seen_urls:
                             continue
-                        seen_urls.add(link)
 
                         time_element = li.find_element(By.CSS_SELECTOR, 'time.promo-timestamp span[data-element="date-time-content"]')
-                        timestamp = time_element.text.strip()
+                        timestamp_text = time_element.text.strip()
 
+                       
+                        try:
+                            article_date = parser.parse(timestamp_text)
+                            if article_date < seven_days_ago:
+                                continue  
+                        except Exception as e:
+                            self.logger.warning(f"Failed to parse date: {timestamp_text} — {e}")
+                            continue
+
+                        seen_urls.add(link)
                         rows.append([
-                            timestamp,
+                            article_date.strftime('%Y-%m-%d'),
                             'LAtimes',
                             title,
                             'N/A',
@@ -84,7 +63,7 @@ class LATimesScraper(BaseScraper):
                         ])
 
                         print("\n========== ARTICLE ==========")
-                        print(f"Date: {timestamp}")
+                        print(f"Date: {article_date}")
                         print(f"Source: LAtimes")
                         print(f"Headline: {title}")
                         print(f"URL: {link}")
@@ -104,9 +83,5 @@ class LATimesScraper(BaseScraper):
 
         finally:
             driver.quit()
-
-        # Save once, after all unique URLs are collected
         self.save_headline_rows(rows)
-        return rows
-
 

@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 import logging
 import csv
@@ -15,6 +16,13 @@ class BaseScraper(ABC):
         self.url = url
         self.logger = logger or logging.getLogger(self.name)
 
+        # Check once if header needs to be written (across runs)
+        if not BaseScraper._csv_header_written:
+            if not os.path.exists(BaseScraper._csv_file) or os.path.getsize(BaseScraper._csv_file) == 0:
+                BaseScraper._csv_header_written = False  # File doesn't exist or is empty
+            else:
+                BaseScraper._csv_header_written = True   # File has content; header assumed written
+
     @abstractmethod
     def scrape(self):
         """Main method to perform scraping. Should be implemented by subclasses."""
@@ -30,5 +38,6 @@ class BaseScraper(ABC):
                     writer.writerow(BaseScraper._csv_columns)
                     BaseScraper._csv_header_written = True
                 for row in rows:
+                    print(f"[INFO] {self.name}: Saving row: {row}")
                     writer.writerow(row)
-        print(f"[INFO] {self.name}: {len(rows)} headlines saved to all_headlines.csv") 
+        print(f"[INFO] {self.name}: {len(rows)} headlines saved to {BaseScraper._csv_file}")

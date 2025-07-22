@@ -1,8 +1,7 @@
+from utils.chrome_driver import get_chrome_driver
+from utils.config import load_config
 from .base import BaseScraper
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
+
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime
@@ -14,19 +13,12 @@ class TheGuardianScraper(BaseScraper):
         super().__init__('TheGuardianScraper', url, logger)
 
     def scrape(self):
-        self.logger.info(f"Starting scrape for {self.url}")
-        options = Options()
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=options
-        )
+        config = load_config()
+        # Initialize Chrome driver
+        driver = get_chrome_driver()
         rows = []
         try:
-            config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'config', 'scraper_config.yaml')
-            with open(config_path, 'r') as f:
-                config = yaml.safe_load(f)
+          
             keywords = config.get('keywords', [])
             for i, keyword in enumerate(keywords):
                 search_url = f"https://www.theguardian.com/us-news?q={keyword.replace(' ', '+')}"
