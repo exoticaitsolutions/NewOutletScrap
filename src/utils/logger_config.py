@@ -1,11 +1,15 @@
 import os
 import logging
+from datetime import datetime
 
+# Setup log directory
 LOG_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../..', 'logs')
 )
 
-LOG_FILE = os.path.join(LOG_DIR, 'news_scraper.log')
+# Create dated log file name
+today = datetime.now().strftime('%Y-%m-%d')
+LOG_FILE = os.path.join(LOG_DIR, f'news_scraper_{today}.log')
 
 
 def loger_config():

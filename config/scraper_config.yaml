@@ -4,15 +4,21 @@ sites:
       enabled: false
   latimes:
       url: "https://www.latimes.com/homeless-housing"
-      enabled: true
+      enabled: false
+  latimes_keyword:
+      url: "https://www.latimes.com"
+      enabled: false
   laist:
       url: "https://laist.com/news/housing-homelessness"
-      enabled: false
+      enabled: true
+  laist_keyword:
+      url: "https://laist.com"
+      enabled: true
   theguardian:
       url: "https://www.theguardian.com/us-news/"
       enabled: false
   downtownla:
-      url: "https://downtownla.com/articles"
+      url: "https://downtownla.com/"
       enabled: false
   apnews:
       url: "https://apnews.com/"
@@ -24,6 +30,7 @@ keywords:
     - Unhoused
     - Homelessness
     - Downtown Los Angeles
+cutoff_days: 8
 
 driver:
   headless: false

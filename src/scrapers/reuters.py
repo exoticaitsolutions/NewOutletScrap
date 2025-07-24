@@ -19,10 +19,12 @@ class ReutersScraper(BaseScraper):
     def scrape(self):
         config = load_config()
         driver = get_chrome_driver()
-        time.sleep(3)
+        time.sleep(random.uniform(3, 4))
+        cutoff_days = config.get('cutoff_days', 7)
+        cutoff_date = datetime.now() - timedelta(days=cutoff_days)
 
         rows = []
-        seen_urls = set()
+        seen_urls = self.load_existing_urls()
         article_urls = []
 
         try:
@@ -32,9 +34,9 @@ class ReutersScraper(BaseScraper):
             base_url = config.get('sites', {}).get('reuters', {}).get('url', self.url)
 
             for i, keyword in enumerate(keywords):
-                print(f"\n Scraping keyword: {keyword}")
+                self.logger.info(f"\n Scraping keyword: {keyword}")
                 search_url = f"{base_url}site-search/?query={keyword.replace(' ', '%20')}"
-                print(f"[DEBUG] Reuters search URL: {search_url}")
+                self.logger.info(f"[DEBUG] Reuters search URL: {search_url}")
 
                 driver.get(base_url)
                 time.sleep(random.uniform(3, 5)) 
@@ -45,8 +47,7 @@ class ReutersScraper(BaseScraper):
                 articles = driver.find_elements(By.CSS_SELECTOR, 'li[data-testid="StoryCard"]')
                 print(f"Found {len(articles)} articles for keyword '{keyword}'")
                 
-            
-
+        
                 for article in articles:
                     try:
                         news_title = article.find_element(By.CSS_SELECTOR, '[data-testid="TitleHeading"]').text.strip()
@@ -62,7 +63,7 @@ class ReutersScraper(BaseScraper):
                             self.logger.warning(f"Could not parse date for article '{news_title}': {e}")
                             continue
 
-                        if article_date < datetime.now() - timedelta(days=7):
+                        if article_date < cutoff_date:
                             print(f" Skipping old article dated {article_date.date()}")
                             continue
 
@@ -96,7 +97,6 @@ class ReutersScraper(BaseScraper):
 
                         rows.append([date, "Reuters", title, meta_desc, url])
                         self.logger.info(f"Saving row: {[date, 'Reuters', title, meta_desc, url]}")
-                        # self.logger.info(f"Saving row: {[date, 'Reuters', title, meta_desc[:100], url]}")
 
                     except Exception as article_error:
                         self.logger.warning(f"Error scraping article page: {article_error}")
@@ -110,4 +110,4 @@ class ReutersScraper(BaseScraper):
 
         finally:
             driver.quit()
-
+            

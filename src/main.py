@@ -23,10 +23,14 @@ def main():
         url = sites['latimes']['url']
         scraper = LATimesScraper(url, logger=logger)
         scraper.scrape()
+        scraper.scrape_by_keywords()
+        
     if sites.get('laist', {}).get('enabled', False):
         url = sites['laist']['url']
         scraper = LAistScraper(url, logger=logger)
         scraper.scrape()
+        scraper.scrape_by_keywords()
+        
     if sites.get('theguardian', {}).get('enabled', False):
         url = sites['theguardian']['url']
         scraper = TheGuardianScraper(url, logger=logger)
