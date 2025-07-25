@@ -147,22 +147,13 @@ class ApnewsScraper(BaseScraper):
 
             for keyword in keywords:
                 self.logger.info(f"\n Scraping keyword: {keyword}")
-                search_url = f"{base_url}search?q={keyword.replace(' ', '+')}"
+                # https://apnews.com/search?q=unhoused&s=3
+                search_url = f"{base_url}search?q={keyword}&s=3"
+                # search_url = f"{base_url}search?q={keyword.replace(' ', '+')}"
                 driver.get(search_url)
                 time.sleep(random.uniform(4, 5))
 
-                try:
-                    dropdown = driver.find_element(By.CLASS_NAME, "Select-control")
-                    dropdown.click()
-                    time.sleep(random.uniform(2, 3))
-                    options = driver.find_elements(By.CLASS_NAME, "Select-option")
-                    for option in options:
-                        if "Newest" in option.text:
-                            option.click()
-                            break
-                    time.sleep(random.uniform(4, 5))
-                except Exception as e:
-                    self.logger.warning(f"[WARN] Could not apply 'Newest' filter: {e}")
+
 
                 last_height = driver.execute_script("return document.body.scrollHeight")
                 scroll_attempt = 0

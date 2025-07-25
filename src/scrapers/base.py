@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 
 class BaseScraper(ABC):
     _csv_lock = threading.Lock()
-    _csv_file = 'all_headlines.csv'
+    _csv_file = 'all_headlines1.csv'
     _csv_header_written = False
     _csv_columns = ['Date Published', 'Publication', 'Headline', 'Meta Description', 'Link']
 
@@ -35,12 +35,7 @@ class BaseScraper(ABC):
                     if len(row) >= 5:
                         existing_urls.add(row[4])
         return existing_urls
-    # def load_existing_urls(self):
-    #     if not os.path.exists(BaseScraper._csv_file):
-    #         return set()
-    #     with open(BaseScraper._csv_file, 'r', encoding='utf-8') as f:
-    #         reader = csv.DictReader(f)
-    #         return set(row['Link'] for row in reader if 'Link' in row)
+
 
     def save_headline_rows(self, rows):
         with BaseScraper._csv_lock:

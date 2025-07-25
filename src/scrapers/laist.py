@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from utils.chrome_driver import get_chrome_driver
 from selenium.webdriver.common.by import By
 from datetime import datetime, timedelta, timezone
+from dateutil import parser
 
 class LAistScraper(BaseScraper):
     def __init__(self, url, logger=None):
@@ -70,10 +71,6 @@ class LAistScraper(BaseScraper):
                         continue
 
 
-                    if url in seen_urls:
-                        self.logger.info(f"Already exists in CSV: {url}")
-                        
-                        continue
                     if published_date and published_date >= cutoff_date:
                         rows.append([
                             published_date.strftime('%Y-%m-%d'),
@@ -82,7 +79,10 @@ class LAistScraper(BaseScraper):
                             meta_desc,
                             url
                         ])
-
+                        seen_urls.add(url)
+                    else:
+                        self.logger.info(f"Old or invalid article: {url}")
+                        
                 except Exception as e:
                     self.logger.warning(f"Error scraping article: {url} | {e}")
                     continue
@@ -109,7 +109,9 @@ class LAistScraper(BaseScraper):
         rows = []
         seen_urls = self.load_existing_urls()
         cutoff_days = config.get('cutoff_days', 7)
-        cutoff_date = datetime.now() - timedelta(days=cutoff_days)
+        cutoff_date = datetime.now().date() - timedelta(days=cutoff_days)
+
+        articles_to_scrape = []
 
         try:
             for keyword in keywords:
@@ -126,64 +128,81 @@ class LAistScraper(BaseScraper):
                     try:
                         title_elem = article.find_element(By.CSS_SELECTOR, "a.gs-title")
                         title = title_elem.get_attribute("textContent").strip()
-                        redirect_url = title_elem.get_attribute("href")
-
-                        if not redirect_url:
-                            continue
-                        if redirect_url in seen_urls:
-                            print(f"[SKIPPED - Already in CSV] {redirect_url}")
+                        url = title_elem.get_attribute("href")
+                        if not url or url in seen_urls:
                             continue
 
                         try:
                             snippet_elem = article.find_element(By.CSS_SELECTOR, ".gs-snippet")
                             snippet_text = snippet_elem.text.strip()
-
                             if "..." in snippet_text:
-                                date_info_str, desc = snippet_text.split("...", 1)
-                                date_info_str = date_info_str.strip()
+                                _, desc = snippet_text.split("...", 1)
                                 desc = desc.strip()
                             else:
-                                date_info_str = "Unknown"
                                 desc = snippet_text
-                        except Exception as e:
-                            date_info_str = "Unknown"
+                        except:
                             desc = "No description"
 
-                        # try:
-                        #     published_date = datetime.strptime(date_info_str, "%b %d, %Y")
-                        # except Exception as e:
-                        #     print(f"[SKIPPED - Invalid date] {redirect_url} - Date info: {date_info_str}")
-                        #     continue
-
-                        if date_info_str < cutoff_date:
-                            print(f"[SKIPPED - Old article] {redirect_url}")
-                            continue
-
-                        rows.append([
-                            date_info_str.strftime('%Y-%m-%d'),
-                            'LAist',
-                            title,
-                            desc,
-                            redirect_url,
-                        ])
-                        # seen_urls.add(redirect_url)
-
-                        driver.execute_script("window.open('');")
-                        driver.switch_to.window(driver.window_handles[1])
-                        driver.get(redirect_url)
-                        time.sleep(2)
-                        driver.close()
-                        driver.switch_to.window(driver.window_handles[0])
+                        articles_to_scrape.append({
+                            "title": title,
+                            "url": url,
+                            "desc": desc
+                        })
 
                     except Exception as e:
-                        print(" Error scraping article:", e)
+                        self.logger.warning(f"Error collecting article info: {e}")
                         continue
+
+            self.logger.info(f"Collected {len(articles_to_scrape)} unique article URLs across all keywords.")
+
+            for article in articles_to_scrape:
+                url = article["url"]
+                title = article["title"]
+                desc = article["desc"]
+
+                if url in seen_urls:
+                    continue
+
+                try:
+                    driver.get(url)
+                    time.sleep(random.uniform(4, 6))
+
+                    try:
+                        post_date_elem = driver.find_element(By.CSS_SELECTOR, 'div.ArticlePage-datePublished')
+                        date_text = post_date_elem.text.strip().replace("Published", "").strip()
+
+                        try:
+                            published_date = parser.parse(date_text).date()
+                        except Exception as e:
+                            self.logger.warning(f"Date parse failed for {url}: {e}")
+                            continue
+
+                        if published_date < cutoff_date:
+                            self.logger.info(f"[SKIPPED - Old article] {url}")
+                            continue
+
+                    except Exception as e:
+                        self.logger.warning(f"Date parse failed for {url}: {e}")
+                        continue
+
+                    rows.append([
+                        published_date.strftime('%Y-%m-%d'),
+                        'LAist',
+                        title,
+                        desc,
+                        url,
+                    ])
+                    seen_urls.add(url)
+
+                except Exception as e:
+                    self.logger.warning(f"Error scraping article detail from {url}: {e}")
+                    continue
 
             if rows:
                 self.save_headline_rows(rows)
-                self.logger.info(f"Scraped {len(rows)} headlines from Reuters {keywords} search and saved to all_headlines.csv.")
+                self.logger.info(f"Saved {len(rows)} articles to all_headlines.csv.")
             else:
-                self.logger.info(" No new articles found to save.")
+                self.logger.info("No recent articles found to save.")
 
         finally:
             driver.quit()

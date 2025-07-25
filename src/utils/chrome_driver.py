@@ -28,13 +28,28 @@ headless = config.get('driver',{}).get('headless', True)
 
 
 
-def get_chrome_driver(headless=headless):
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+import os
+
+# Unset any proxy-related environment variables
+for var in ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']:
+    os.environ.pop(var, None)
+
+def get_chrome_driver(headless=False):
     options = Options()
 
-    # if headless:
-    #     print("[DEBUG] Running Chrome in headless mode.")
-    #     options.add_argument('--headless=new')  
-    #     options.add_argument('--disable-gpu')
+    # ✅ Force-disable all proxy settings
+    options.add_argument("--no-proxy-server")
+    options.add_argument("--proxy-server='direct://'")
+    options.add_argument("--proxy-bypass-list=*")
+
+
+    if headless:
+        print("[DEBUG] Running Chrome in headless mode.")
+        options.add_argument('--headless=new')
+        options.add_argument('--disable-gpu')
 
     # Anti-detection flags
     options.add_argument('--no-sandbox')
@@ -53,7 +68,7 @@ def get_chrome_driver(headless=headless):
         options=options
     )
 
-    # Stealth: Hide 'webdriver' flag
+    # Hide `navigator.webdriver`
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
         "source": """
             Object.defineProperty(navigator, 'webdriver', {
@@ -62,10 +77,10 @@ def get_chrome_driver(headless=headless):
         """
     })
 
-    # Maximize window
     try:
         driver.maximize_window()
     except Exception as e:
         print(f"[WARNING] Could not maximize window: {e}")
 
     return driver
+

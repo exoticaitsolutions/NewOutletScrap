@@ -10,10 +10,10 @@ sites:
       enabled: false
   laist:
       url: "https://laist.com/news/housing-homelessness"
-      enabled: true
+      enabled: false
   laist_keyword:
       url: "https://laist.com"
-      enabled: true
+      enabled: false
   theguardian:
       url: "https://www.theguardian.com/us-news/"
       enabled: false
@@ -25,7 +25,7 @@ sites:
       enabled: false
   lacity:
       url: "https://lacity.gov/"
-      enabled: false
+      enabled: true
 keywords:
     - Unhoused
     - Homelessness
