@@ -46,7 +46,7 @@ def main():
         scraper.scrape()
     if sites.get('lacity', {}).get('enabled', False):
         url = sites['lacity']['url']
-        scraper = LacityScraper(url, logger=logger) 
+        scraper = LacityScraper(url, logger=logger)
         scraper.scrape()
     logger.info('Scraping complete.')
     send_email()
