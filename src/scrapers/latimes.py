@@ -12,10 +12,9 @@ from selenium.webdriver.support.ui import Select
 
 
 class LATimesScraper(BaseScraper):
-    def __init__(self, url, logger=None, max_items=50):
+    def __init__(self, url, logger=None, max_items=20):
         super().__init__('LATimesScraper', url, logger)
         self.max_items = max_items
-
 
     def scrape(self):
         self.logger.info(f"Starting scrape for {self.url}")
@@ -27,14 +26,21 @@ class LATimesScraper(BaseScraper):
 
         try:
             driver.get(self.url)
-            time.sleep(random.uniform(4,5))
+            time.sleep(random.uniform(4, 5))
 
-            while len(seen_urls) < self.max_items:
-                ul = driver.find_element(By.CSS_SELECTOR, 'ul.list-menu.list-i-menu')
-                li_elements = ul.find_elements(By.TAG_NAME, 'li')
+            collected = 0
+
+            while collected < self.max_items:
+                try:
+                    ul = driver.find_element(By.CSS_SELECTOR, 'ul.list-menu.list-i-menu')
+                    li_elements = ul.find_elements(By.TAG_NAME, 'li')
+                    self.logger.info(f"Found {len(li_elements)} <li> elements")
+                except Exception as e:
+                    self.logger.warning(f"Could not find article list container: {e}")
+                    break
 
                 for li in li_elements:
-                    if len(seen_urls) >= self.max_items:
+                    if collected >= self.max_items:
                         break
 
                     try:
@@ -42,22 +48,21 @@ class LATimesScraper(BaseScraper):
                         title = title_element.text.strip()
                         link = title_element.get_attribute('href')
 
-                        if link in seen_urls:
+                        if not link or link in seen_urls:
+                            self.logger.info(f"[SKIP] URL already in CSV: {link}")
                             continue
 
                         time_element = li.find_element(By.CSS_SELECTOR, 'time.promo-timestamp span[data-element="date-time-content"]')
                         timestamp_text = time_element.text.strip()
 
-                       
                         try:
                             article_date = parser.parse(timestamp_text)
                             if article_date < seven_days_ago:
-                                continue  
+                                continue
                         except Exception as e:
                             self.logger.warning(f"Failed to parse date: {timestamp_text} — {e}")
                             continue
 
-                        seen_urls.add(link)
                         rows.append([
                             article_date.strftime('%Y-%m-%d'),
                             'LAtimes',
@@ -65,29 +70,28 @@ class LATimesScraper(BaseScraper):
                             'N/A',
                             link,
                         ])
-
-                        print("\n========== ARTICLE ==========")
-                        print(f"Date: {article_date}")
-                        print(f"Source: LAtimes")
-                        print(f"Headline: {title}")
-                        print(f"URL: {link}")
-                        print("=============================\n")
+                        seen_urls.add(link)
+                        collected += 1
+                        print(f"[{collected}] Added: {link}")
 
                     except Exception as e:
-                        self.logger.warning(f"Error parsing article li: {e}")
+                        self.logger.warning(f"Error parsing <li> item: {e}")
 
-                if len(seen_urls) < self.max_items:
+                if collected < self.max_items:
                     try:
                         load_more = driver.find_element(By.CSS_SELECTOR, 'div.list-pagination button.button-load-more')
                         driver.execute_script("arguments[0].click();", load_more)
-                        time.sleep(3)
+                        time.sleep(random.uniform(3, 4))
                     except (NoSuchElementException, ElementClickInterceptedException):
                         self.logger.info("No more 'Load More' button or click failed.")
                         break
 
         finally:
             driver.quit()
+
         self.save_headline_rows(rows)
+        self.logger.info(f"Scraped and saved {len(rows)} new articles.")
+
 
 
 
@@ -105,24 +109,25 @@ class LATimesScraper(BaseScraper):
                 for keyword in keywords:
                     search_url = f"{base_url}/search?q={(keyword)}&s=1"
                     self.logger.info(f"Searching for keyword: {keyword}")
-                    print(f"\n Searching keyword: {keyword}")
-                    print(f" URL: {search_url}")
                     driver.get(search_url)
                     time.sleep(random.uniform(4,5))
-                    
-                
-                    print("I reached here------------")
-                    today = datetime.now(timezone.utc)
-                    cutoff_date = today - timedelta(days=7)
+                    cutoff_days = config.get('cutoff_days', 7)
+                    cutoff_date = datetime.now().date() - timedelta(days=cutoff_days)
 
                     promos = driver.find_elements(By.CSS_SELECTOR, 'div.promo-wrapper')
-                    print(f"Found {len(promos)} articles for keyword '{keyword}'")
+                    self.logger.info(f"Found {len(promos)} articles for keyword '{keyword}'")
                     
                     for promo in promos:
                         try:
                             title_element = promo.find_element(By.CSS_SELECTOR, 'h3.promo-title a')
                             title = title_element.text.strip()
                             link = title_element.get_attribute('href')
+                          
+                            if link in seen_urls:
+                                self.logger.info(f"[SKIP] URL already seen or saved: {link}")
+                                continue
+                            seen_urls.add(link)
+
 
                             try:
                                 description_element = promo.find_element(By.CSS_SELECTOR, '.promo-content .promo-description')
@@ -131,36 +136,27 @@ class LATimesScraper(BaseScraper):
                                 description = "N/A"
 
                             try:
-                                span_time_element = promo.find_element(By.CSS_SELECTOR, 'time span[data-element="date-time-content"]')
-                                time_text = span_time_element.text.strip()
-                            except:
-                                time_text = "N/A"
+                                time_tag = promo.find_element(By.CSS_SELECTOR, 'time')
+                                datetime_str = time_tag.get_attribute('datetime')
+                                time_text = promo.find_element(By.CSS_SELECTOR, 'time span[data-element="date-time-content"]').text.strip()
+                                published_dt = datetime.fromisoformat(datetime_str.replace('Z', '+00:00')).date()
+                            except Exception as e:
+                                self.logger.warning(f"Failed to parse date for {link}: {e}")
+                                published_dt = None
+                                time_text = "NA"
 
-                            time_element = promo.find_element(By.CSS_SELECTOR, 'time')
-                            date_str = time_element.get_attribute('datetime')
-
-                            try:
-                                published_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-                            except ValueError:
-                                published_date = datetime.strptime(date_str, '%B %d, %Y')
-                                published_date = published_date.replace(tzinfo=timezone.utc)
-
-                            if published_date >= cutoff_date:
-                                print("========== ARTICLE ==========")
-                                print(f"Title: {title}")
-                                print(f"Link: {link}")
-                                print(f"Description: {description}")
-                                print(f"Published Date: {published_date.strftime('%Y-%m-%d')}")
-                                print(f"Displayed Date: {time_text}")
-                                print("=============================\n")
-                            
+                            if published_dt and published_dt >= cutoff_date:
                                 rows.append([time_text, "LAtimes", title, description, link])
                         except Exception as e:
-                            print(f" Error extracting promo: {e}")
+                            self.logger.info(f" Error extracting promo: {e}")
+                            
+                self.save_headline_rows(rows)
+                self.logger.info(f"Scraped {len(rows)} headlines from Reuters {keywords} search and saved to all_headlines.csv.")
+                
+            except Exception as e:
+                self.logger.error(f"Error scraping {self.url}: {e}")
             finally:
                 driver.quit()
 
-            self.save_headline_rows(rows)
-            self.logger.info(f"Scraped {len(rows)} headlines from Reuters {keywords} search and saved to all_headlines.csv.")
 
 

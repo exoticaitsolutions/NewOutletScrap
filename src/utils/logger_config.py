@@ -7,7 +7,6 @@ LOG_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../..', 'logs')
 )
 
-# Create dated log file name
 today = datetime.now().strftime('%Y-%m-%d')
 LOG_FILE = os.path.join(LOG_DIR, f'news_scraper_{today}.log')
 

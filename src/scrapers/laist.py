@@ -33,13 +33,14 @@ class LAistScraper(BaseScraper):
 
             for url in urls:
                 if url in seen_urls:
+                    self.logger.info(f"[SKIP] URL already in CSV: {urls}")
                     continue
                 seen_urls.add(url)
 
                 try:
                     driver.get(url)
                     time.sleep(random.uniform(4, 6))
-
+     
                     headline = ''
                     meta_desc = ''
                     date_text = ''
@@ -79,7 +80,7 @@ class LAistScraper(BaseScraper):
                             meta_desc,
                             url
                         ])
-                        seen_urls.add(url)
+                        seen_urls.add(url)     
                     else:
                         self.logger.info(f"Old or invalid article: {url}")
                         
@@ -116,6 +117,7 @@ class LAistScraper(BaseScraper):
         try:
             for keyword in keywords:
                 search_url = f"{base_url}/search?q={keyword}#gsc.tab=0&gsc.q={keyword}&gsc.sort=date"
+                
                 self.logger.info(f"Searching for keyword: {keyword}")
                 self.logger.info(f"URL: {search_url}")
                 driver.get(search_url)
@@ -150,7 +152,7 @@ class LAistScraper(BaseScraper):
                         })
 
                     except Exception as e:
-                        self.logger.warning(f"Error collecting article info: {e}")
+                        self.logger.info(f"Error collecting article info: {e}")
                         continue
 
             self.logger.info(f"Collected {len(articles_to_scrape)} unique article URLs across all keywords.")
@@ -162,6 +164,8 @@ class LAistScraper(BaseScraper):
 
                 if url in seen_urls:
                     continue
+                
+                seen_urls.add(url)
 
                 try:
                     driver.get(url)
@@ -183,17 +187,17 @@ class LAistScraper(BaseScraper):
 
                     except Exception as e:
                         self.logger.warning(f"Date parse failed for {url}: {e}")
-                        continue
+                        continue                                                        
 
-                    rows.append([
+                    rows.append([                                                                                                                                                                      
                         published_date.strftime('%Y-%m-%d'),
                         'LAist',
                         title,
                         desc,
                         url,
                     ])
-                    seen_urls.add(url)
-
+                    seen_urls.add(url)                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
                 except Exception as e:
                     self.logger.warning(f"Error scraping article detail from {url}: {e}")
                     continue

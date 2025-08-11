@@ -39,6 +39,7 @@ class DowntownLAScraper(BaseScraper):
                         if link in seen_urls:
                             self.logger.info(f"[SKIP] URL already in CSV: {link}")
                             continue
+                        seen_urls.add(link)
                         
                         try:
                             meta_desc = li.find_element(By.CLASS_NAME, "solr_highlight").text.strip()

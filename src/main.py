@@ -4,6 +4,7 @@ import yaml
 from scrapers import ReutersScraper, LATimesScraper, LAistScraper, TheGuardianScraper, DowntownLAScraper, ApnewsScraper, LacityScraper
 from utils.config import load_config
 from utils.logger_config import loger_config
+from utils.email_send import send_email
 
 # Set up logging
 logger = loger_config()
@@ -45,9 +46,11 @@ def main():
         scraper.scrape()
     if sites.get('lacity', {}).get('enabled', False):
         url = sites['lacity']['url']
-        scraper = LacityScraper(url, logger=logger)
+        scraper = LacityScraper(url, logger=logger) 
         scraper.scrape()
     logger.info('Scraping complete.')
+    send_email()
 
 if __name__ == '__main__':
+    
     main() 
