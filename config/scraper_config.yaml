@@ -1,20 +1,56 @@
 sites:
   reuters:
-    url: "https://www.reuters.com/"
-    enabled: true
+      url: "https://www.reuters.com/"
+      enabled: true
   latimes:
-    url: "https://www.latimes.com/homeless-housing"
-    enabled: true
+      url: "https://www.latimes.com/homeless-housing"
+      enabled: true
+  latimes_keyword:
+      url: "https://www.latimes.com"
+      enabled: true
   laist:
-    url: "https://laist.com/news/housing-homelessness"
-    enabled: true
+      url: "https://laist.com/news/housing-homelessness"
+      enabled: true
+  laist_keyword:
+      url: "https://laist.com"
+      enabled: true
   theguardian:
-    url: "https://www.theguardian.com/us-news/"
-    enabled: true
+      url: "https://www.theguardian.com/us-news/"
+      enabled: false
   downtownla:
-    url: "https://downtownla.com/articles"
-    enabled: true
+      url: "https://downtownla.com/"
+      enabled: true
+  apnews:
+      url: "https://apnews.com/"
+      enabled: true
+  lacity:
+      url: "https://lacity.gov/"
+      enabled: true
 keywords:
-  - Homelessness
-  - Unhoused
-  - Downtown Los Angeles 
+    - Unhoused
+    - Homelessness
+    - Downtown Los Angeles
+cutoff_days: 7
+
+driver:
+  headless: false
+
+smtp:
+  smtp_server: smtp.hostinger.com
+  smtp_port: 465
+  sender_email: pythonweb@exoticaitsolutions.com
+  sender_password: Webpython@123#
+  subject : "This week's headlines"
+  body : "Hi Monique,\n\n We've attached a few of the top headlines that we would like to cover for your review to this email.Please let us know which of the articles should take highest priority!"
+  to_email: webbdeveloper24@gmail.com
+
+
+csv_base_path: csv_output
+csv_filename_prefix: all_headlines
+csv_days_to_keep: 30
+
+
+
+
+
+

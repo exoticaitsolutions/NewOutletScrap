@@ -11,7 +11,6 @@ CONFIG_PATH = os.path.abspath(
 )
 
 
-
 def load_config():
     if os.path.exists(CONFIG_PATH):
         with open(CONFIG_PATH, 'r') as f:

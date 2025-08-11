@@ -1,9 +1,10 @@
 import os
 import sys
 import yaml
-from scrapers import ReutersScraper, LATimesScraper, LAistScraper, TheGuardianScraper, DowntownLAScraper, ApnewsScraper
+from scrapers import ReutersScraper, LATimesScraper, LAistScraper, TheGuardianScraper, DowntownLAScraper, ApnewsScraper, LacityScraper
 from utils.config import load_config
 from utils.logger_config import loger_config
+from utils.email_send import send_email
 
 # Set up logging
 logger = loger_config()
@@ -23,10 +24,14 @@ def main():
         url = sites['latimes']['url']
         scraper = LATimesScraper(url, logger=logger)
         scraper.scrape()
+        scraper.scrape_by_keywords()
+        
     if sites.get('laist', {}).get('enabled', False):
         url = sites['laist']['url']
         scraper = LAistScraper(url, logger=logger)
         scraper.scrape()
+        scraper.scrape_by_keywords()
+        
     if sites.get('theguardian', {}).get('enabled', False):
         url = sites['theguardian']['url']
         scraper = TheGuardianScraper(url, logger=logger)
@@ -39,7 +44,13 @@ def main():
         url = sites['apnews']['url']
         scraper = ApnewsScraper(url, logger=logger)
         scraper.scrape()
+    if sites.get('lacity', {}).get('enabled', False):
+        url = sites['lacity']['url']
+        scraper = LacityScraper(url, logger=logger)
+        scraper.scrape()
     logger.info('Scraping complete.')
+    send_email()
 
 if __name__ == '__main__':
+    
     main() 
