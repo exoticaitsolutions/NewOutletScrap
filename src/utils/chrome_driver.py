@@ -48,4 +48,9 @@ def get_chrome_driver(headless=False):
     except Exception as e:
         print(f"[WARNING] Could not maximize window: {e}")
 
-    return driver
+    return driver  
+
+
+
+
+

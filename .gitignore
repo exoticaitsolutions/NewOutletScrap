@@ -133,3 +133,5 @@ logs/
 
 # config 
 
+credentials.json
+token.pickle

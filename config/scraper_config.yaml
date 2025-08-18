@@ -4,28 +4,28 @@ sites:
       enabled: true
   latimes:
       url: "https://www.latimes.com/homeless-housing"
-      enabled: true
+      enabled: false
   latimes_keyword:
       url: "https://www.latimes.com"
-      enabled: true
+      enabled: false
   laist:
       url: "https://laist.com/news/housing-homelessness"
-      enabled: true
+      enabled: false
   laist_keyword:
       url: "https://laist.com"
-      enabled: true
+      enabled: false
   theguardian:
       url: "https://www.theguardian.com/us-news/"
       enabled: false
   downtownla:
       url: "https://downtownla.com/"
-      enabled: true
+      enabled: false
   apnews:
       url: "https://apnews.com/"
-      enabled: true
+      enabled: false
   lacity:
       url: "https://lacity.gov/"
-      enabled: true
+      enabled: false
 keywords:
     - Unhoused
     - Homelessness
@@ -39,7 +39,7 @@ smtp:
   smtp_server: smtp.hostinger.com
   smtp_port: 465
   sender_email: pythonweb@exoticaitsolutions.com
-  sender_password: Webpython@123#
+  sender_password: Webpython@123#1
   subject : "This week's headlines"
   body : "Hi Monique,\n\n We've attached a few of the top headlines that we would like to cover for your review to this email.Please let us know which of the articles should take highest priority!"
   to_email: webbdeveloper24@gmail.com
@@ -47,8 +47,9 @@ smtp:
 
 csv_base_path: csv_output
 csv_filename_prefix: all_headlines
-csv_days_to_keep: 30
-
+csv_days_to_keep: 7
+spreadsheet_id: "1aQUbyx_RI1_ZPrt_gAI86mRAtK7glP7Sk8IvWdYS2VU"
+google_drive_folder_id: "1GPzyzSWN1LWsAGNNIi_fyJr2_npsbYjj"
 
 
 
