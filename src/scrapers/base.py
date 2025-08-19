@@ -21,12 +21,10 @@ class BaseScraper(ABC):
     _csv_columns = ['Date Published', 'Publication', 'Headline', 'Meta Description', 'Link']
 
     # ==== Google API Config ====
-    DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive']
     SHEETS_SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
     CREDENTIALS_FILE = 'credentials.json'
     TOKEN_FILE = 'token.pickle'
-
-    TARGET_FOLDER_ID = None        
+   
     SPREADSHEET_ID = None          
     SHEET_NAME = "Sheet1"
 
@@ -43,7 +41,7 @@ class BaseScraper(ABC):
         csv_prefix = config["csv_filename_prefix"]
         days_to_keep = config["csv_days_to_keep"]
 
-        BaseScraper.TARGET_FOLDER_ID = config.get("google_drive_folder_id")
+        # BaseScraper.TARGET_FOLDER_ID = config.get("google_drive_folder_id")
         BaseScraper.SPREADSHEET_ID = config.get("spreadsheet_id")
 
         today_str = datetime.now().strftime('%Y-%m-%d')
@@ -91,10 +89,6 @@ class BaseScraper(ABC):
 
             print(f"[INFO] {self.name}: {len(rows)} headlines saved to {self._csv_file}")
 
-        # Upload CSV to Google Drive
-        self.upload_to_drive()
-
-        # Optionally also push to Google Sheets
         if BaseScraper.SPREADSHEET_ID:
             self.save_to_google_sheets(rows)
 
@@ -110,21 +104,6 @@ class BaseScraper(ABC):
             except ValueError:
                 continue
 
-    # === Google Drive ===
-    def authenticate_drive(self):
-        creds = None
-        if os.path.exists(self.TOKEN_FILE):
-            with open(self.TOKEN_FILE, 'rb') as token:
-                creds = pickle.load(token)
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(self.CREDENTIALS_FILE, self.DRIVE_SCOPES)
-                creds = flow.run_local_server(port=0)
-            with open(self.TOKEN_FILE, 'wb') as token:
-                pickle.dump(creds, token)
-        return build('drive', 'v3', credentials=creds)
 
     def find_existing_file(self, service, filename):
         query = f"name='{filename}' and '{self.TARGET_FOLDER_ID}' in parents and trashed=false"
@@ -132,28 +111,6 @@ class BaseScraper(ABC):
         files = results.get('files', [])
         return files[0]['id'] if files else None
 
-    def upload_to_drive(self):
-        try:
-            if not os.path.exists(self._csv_file):
-                self.logger.error(f"CSV file not found: {self._csv_file}")
-                return
-
-            service = self.authenticate_drive()
-            filename = os.path.basename(self._csv_file)
-            file_id = self.find_existing_file(service, filename)
-            media = MediaFileUpload(self._csv_file, mimetype='text/csv', resumable=True)
-
-            if file_id:
-                service.files().update(fileId=file_id, media_body=media).execute()
-                print(f"Updated file in Google Drive: {filename}")
-            else:
-                file_metadata = {'name': filename, 'parents': [self.TARGET_FOLDER_ID]}
-                service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-                print(f"Uploaded new file to Google Drive: {filename}")
-
-        except Exception as e:
-            self.logger.error(f"Google Drive upload failed: {e}")
-            print(f"Google Drive upload failed: {e}")
 
     # === Google Sheets ===
     def authenticate_sheets(self):
@@ -202,8 +159,8 @@ class BaseScraper(ABC):
                 body=body
             ).execute()
 
-            print(f"📊 {len(rows)} headlines also saved to Google Sheets")
+            print(f"{len(rows)} headlines also saved to Google Sheets")
 
         except Exception as e:
             self.logger.error(f"Google Sheets append failed: {e}")
-            print(f"❌ Google Sheets append failed: {e}")
+            print(f"Google Sheets append failed: {e}")

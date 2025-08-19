@@ -22,7 +22,7 @@ class LATimesScraper(BaseScraper):
         rows = []
         seen_urls = self.load_existing_urls()
         today = datetime.now()
-        seven_days_ago = today - timedelta(days=7)
+        seven_days_ago = today - timedelta(days=1)
 
         try:
             driver.get(self.url)
