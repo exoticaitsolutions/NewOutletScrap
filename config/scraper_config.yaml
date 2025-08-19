@@ -30,24 +30,25 @@ keywords:
     - Unhoused
     - Homelessness
     - Downtown Los Angeles
-cutoff_days: 7
+cutoff_days: 1
 
 driver:
-  headless: false
+  headless: true
 
-smtp:
-  smtp_server: smtp.hostinger.com
-  smtp_port: 465
-  sender_email: pythonweb@exoticaitsolutions.com
-  sender_password: Webpython@123#
-  subject : "This week's headlines"
-  body : "Hi Monique,\n\n We've attached a few of the top headlines that we would like to cover for your review to this email.Please let us know which of the articles should take highest priority!"
-  to_email: webbdeveloper24@gmail.com
+# smtp:
+#   smtp_server: smtp.hostinger.com
+#   smtp_port: 465
+#   sender_email: pythonweb@exoticaitsolutions.com
+#   sender_password: Webpython@123#1
+#   subject : "This week's headlines"
+#   body : "Hi Monique,\n\n We've attached a few of the top headlines that we would like to cover for your review to this email.Please let us know which of the articles should take highest priority!"
+#   to_email: webbdeveloper24@gmail.com
 
 
 csv_base_path: csv_output
 csv_filename_prefix: all_headlines
-csv_days_to_keep: 30
+csv_days_to_keep: 1
+spreadsheet_id: "1Wl0-ZVz6jieUF_wgEylR3A7pBYfjgdcwN787kYo-Coc"
 
 
 

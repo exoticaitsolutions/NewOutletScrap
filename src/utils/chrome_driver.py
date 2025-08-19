@@ -7,7 +7,7 @@ from utils.config import load_config
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 CHROMEDRIVER_PATH = os.path.join(
-    BASE_DIR, "driver", "chromedriver-win32", "chromedriver.exe"
+    BASE_DIR, "driver", "chromedriver-linux64", "chromedriver"
 )
 
 config = load_config()
@@ -48,4 +48,9 @@ def get_chrome_driver(headless=False):
     except Exception as e:
         print(f"[WARNING] Could not maximize window: {e}")
 
-    return driver
+    return driver  
+
+
+
+
+

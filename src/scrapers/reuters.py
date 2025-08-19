@@ -21,7 +21,7 @@ class ReutersScraper(BaseScraper):
         config = load_config()
         driver = get_chrome_driver()
         time.sleep(random.uniform(1, 2))
-        cutoff_days = config.get('cutoff_days', 7)
+        cutoff_days = config.get('cutoff_days', 1)
         cutoff_date = datetime.now() - timedelta(days=cutoff_days)
 
         rows = []

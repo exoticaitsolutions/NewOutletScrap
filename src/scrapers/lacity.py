@@ -32,7 +32,7 @@ class LacityScraper(BaseScraper):
             self.logger.info(f"Starting scrape for {self.url}")
             keywords = config.get('keywords', [])
             base_url = config.get('sites', {}).get('lacity', {}).get('url', self.url)
-            cutoff_days = config.get('cutoff_days', 7)
+            cutoff_days = config.get('cutoff_days', 1)
             cutoff_date = datetime.now() - timedelta(days=cutoff_days)
             seen_urls = self.load_existing_urls()
 

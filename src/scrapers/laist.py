@@ -21,7 +21,7 @@ class LAistScraper(BaseScraper):
         driver = get_chrome_driver()
         rows = []
         seen_urls = self.load_existing_urls()
-        cutoff_days = config.get('cutoff_days', 7)
+        cutoff_days = config.get('cutoff_days', 1)
         cutoff_date = datetime.now() - timedelta(days=cutoff_days)
 
         try:
