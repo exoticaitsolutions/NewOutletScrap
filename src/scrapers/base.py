@@ -33,31 +33,30 @@ class BaseScraper(ABC):
         self.url = url
         self.logger = logger or logging.getLogger(self.name)
 
-
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
 
         csv_base_path = config["csv_base_path"]
-        csv_prefix = config["csv_filename_prefix"]
+        csv_filename = "all_headlines.csv"  
         days_to_keep = config["csv_days_to_keep"]
 
         # BaseScraper.TARGET_FOLDER_ID = config.get("google_drive_folder_id")
         BaseScraper.SPREADSHEET_ID = config.get("spreadsheet_id")
 
-        today_str = datetime.now().strftime('%Y-%m-%d')
-        self._csv_file = os.path.join(csv_base_path, f'{csv_prefix}{today_str}.csv')
+        self._csv_file = os.path.join(csv_base_path, csv_filename)
 
+        # Ensure directory exists
         csv_dir = os.path.dirname(self._csv_file)
         if not os.path.exists(csv_dir):
             os.makedirs(csv_dir)
             self.logger.info(f"[{self.name}] Created directory: {csv_dir}")
 
+        # Track if header already exists
         if self._csv_file not in BaseScraper._csv_header_written:
             BaseScraper._csv_header_written[self._csv_file] = (
                 os.path.exists(self._csv_file) and os.path.getsize(self._csv_file) > 0
             )
 
-        self.cleanup_old_csvs(csv_dir, csv_prefix, days_to_keep)
 
     @abstractmethod
     def scrape(self):
@@ -87,6 +86,7 @@ class BaseScraper(ABC):
                     self.logger.info(f"[{self.name}] Saving row: {row}")
                     writer.writerow(row)
 
+            self.logger.info(f"[INFO] {self.name}: {len(rows)} headlines saved to {self._csv_file}")
             print(f"[INFO] {self.name}: {len(rows)} headlines saved to {self._csv_file}")
 
         if BaseScraper.SPREADSHEET_ID:
@@ -149,7 +149,7 @@ class BaseScraper(ABC):
                     body=header_body
                 ).execute()
 
-            # append rows
+
             body = {"values": rows}
             service.spreadsheets().values().append(
                 spreadsheetId=self.SPREADSHEET_ID,
@@ -159,6 +159,7 @@ class BaseScraper(ABC):
                 body=body
             ).execute()
 
+            self.logger.info(f"{len(rows)} headlines also saved to Google Sheets")
             print(f"{len(rows)} headlines also saved to Google Sheets")
 
         except Exception as e:

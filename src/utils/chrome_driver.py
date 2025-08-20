@@ -13,7 +13,7 @@ CHROMEDRIVER_PATH = os.path.join(
 config = load_config()
 headless = config.get('driver', {}).get('headless', True)
 
-def get_chrome_driver(headless=False):
+def get_chrome_driver(headless=True):
     if not os.path.isfile(CHROMEDRIVER_PATH):
         raise FileNotFoundError(f"ChromeDriver not found at: {CHROMEDRIVER_PATH}")
 
