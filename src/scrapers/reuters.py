@@ -20,7 +20,6 @@ class ReutersScraper(BaseScraper):
     def scrape(self):
         config = load_config()
         driver = get_chrome_driver()
-        time.sleep(random.uniform(1, 2))
         cutoff_days = config.get('cutoff_days', 7)
         cutoff_date = datetime.now() - timedelta(days=cutoff_days)
 
@@ -35,7 +34,7 @@ class ReutersScraper(BaseScraper):
             base_url = config.get('sites', {}).get('reuters', {}).get('url', self.url)
             
             driver.get(base_url)
-            time.sleep(random.uniform(3, 5)) 
+            time.sleep(random.uniform(4, 6)) 
 
             for keyword in keywords:
                 self.logger.info(f"\nScraping keyword: {keyword}")
@@ -43,7 +42,7 @@ class ReutersScraper(BaseScraper):
                 self.logger.info(f"[DEBUG] Reuters search URL: {search_url}")
 
                 driver.get(search_url)
-                time.sleep(random.uniform(4, 6))
+                time.sleep(random.uniform(6, 8))
                 
                 articles = driver.find_elements(By.CSS_SELECTOR, 'li[data-testid="StoryCard"]')
                 self.logger.info(f"Found {len(articles)} articles for keyword '{keyword}'")

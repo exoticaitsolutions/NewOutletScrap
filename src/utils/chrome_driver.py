@@ -7,13 +7,13 @@ from utils.config import load_config
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 CHROMEDRIVER_PATH = os.path.join(
-    BASE_DIR, "driver", "chromedriver-win32", "chromedriver.exe"
+    BASE_DIR, "driver", "chromedriver-linux64", "chromedriver"
 )
 
 config = load_config()
 headless = config.get('driver', {}).get('headless', True)
 
-def get_chrome_driver(headless=False):
+def get_chrome_driver(headless=True):
     if not os.path.isfile(CHROMEDRIVER_PATH):
         raise FileNotFoundError(f"ChromeDriver not found at: {CHROMEDRIVER_PATH}")
 

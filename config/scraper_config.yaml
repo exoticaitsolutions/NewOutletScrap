@@ -4,28 +4,28 @@ sites:
       enabled: true
   latimes:
       url: "https://www.latimes.com/homeless-housing"
-      enabled: false
+      enabled: true
   latimes_keyword:
       url: "https://www.latimes.com"
-      enabled: false
+      enabled: true
   laist:
       url: "https://laist.com/news/housing-homelessness"
-      enabled: false
+      enabled: true
   laist_keyword:
       url: "https://laist.com"
-      enabled: false
+      enabled: true
   theguardian:
       url: "https://www.theguardian.com/us-news/"
       enabled: false
   downtownla:
       url: "https://downtownla.com/"
-      enabled: false
+      enabled: true
   apnews:
       url: "https://apnews.com/"
-      enabled: false
+      enabled: true
   lacity:
       url: "https://lacity.gov/"
-      enabled: false
+      enabled: true
 keywords:
     - Unhoused
     - Homelessness
@@ -33,23 +33,23 @@ keywords:
 cutoff_days: 7
 
 driver:
-  headless: false
+  headless: true
 
-smtp:
-  smtp_server: smtp.hostinger.com
-  smtp_port: 465
-  sender_email: pythonweb@exoticaitsolutions.com
-  sender_password: Webpython@123#1
-  subject : "This week's headlines"
-  body : "Hi Monique,\n\n We've attached a few of the top headlines that we would like to cover for your review to this email.Please let us know which of the articles should take highest priority!"
-  to_email: webbdeveloper24@gmail.com
+# smtp:
+#   smtp_server: smtp.hostinger.com
+#   smtp_port: 465
+#   sender_email: pythonweb@exoticaitsolutions.com
+#   sender_password: Webpython@123#1
+#   subject : "This week's headlines"
+#   body : "Hi Monique,\n\n We've attached a few of the top headlines that we would like to cover for your review to this email.Please let us know which of the articles should take highest priority!"
+#   to_email: webbdeveloper24@gmail.com
 
 
 csv_base_path: csv_output
 csv_filename_prefix: all_headlines
-csv_days_to_keep: 7
-spreadsheet_id: "1aQUbyx_RI1_ZPrt_gAI86mRAtK7glP7Sk8IvWdYS2VU"
-google_drive_folder_id: "1GPzyzSWN1LWsAGNNIi_fyJr2_npsbYjj"
+csv_days_to_keep: 1
+spreadsheet_id: "1Wl0-ZVz6jieUF_wgEylR3A7pBYfjgdcwN787kYo-Coc"
+
 
 
 
