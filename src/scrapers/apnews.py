@@ -30,7 +30,7 @@ class ApnewsScraper(BaseScraper):
             keywords = config.get('keywords', [])
             base_url = config.get('sites', {}).get('apnews', {}).get('url', self.url)
 
-            cutoff_days = config.get('cutoff_days', 7)
+            cutoff_days = config.get('cutoff_days', 1)
             cutoff_date = datetime.now() - timedelta(days=cutoff_days)
 
             for keyword in keywords:

@@ -40,6 +40,7 @@ class BaseScraper(ABC):
         csv_filename = "all_headlines.csv"  
         days_to_keep = config["csv_days_to_keep"]
 
+        # BaseScraper.TARGET_FOLDER_ID = config.get("google_drive_folder_id")
         BaseScraper.SPREADSHEET_ID = config.get("spreadsheet_id")
 
         self._csv_file = os.path.join(csv_base_path, csv_filename)

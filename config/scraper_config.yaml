@@ -30,7 +30,7 @@ keywords:
     - Unhoused
     - Homelessness
     - Downtown Los Angeles
-cutoff_days: 7
+cutoff_days: 1
 
 driver:
   headless: true
